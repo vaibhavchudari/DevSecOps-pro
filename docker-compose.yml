@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  netflix:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
+      args:
+        TMDB_V3_API_KEY: ${TMDB_V3_API_KEY}  # Reference the build argument
+    image: vaibhavchudari/netflix:latest
+    ports:
+      - "8081:80"
