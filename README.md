@@ -363,6 +363,7 @@ sudo systemctl restart jenkins
 
 ```
 OR USING DOCKER COMOSE FILE 
+```groovy
 
 pipeline {
     agent any
