@@ -362,6 +362,101 @@ sudo systemctl restart jenkins
 
 
 ```
+OR USING DOCKER COMOSE FILE 
+
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+        TMDB_V3_API_KEY = '66506ed64934ccfccc8401df385e6130'  // Set the build argument here if needed
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout from Git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/vaibhavchudari/DevSecOps-pro.git'
+            }
+        }
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
+                    -Dsonar.projectKey=Netflix'''
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        stage('OWASP FS Scan') {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage('TRIVY FS Scan') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
+            }
+        }
+        stage("Build and Push Docker Image with Docker Compose") {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        // Build the image using Docker Compose
+                        sh "docker-compose build --build-arg TMDB_V3_API_KEY=${TMDB_V3_API_KEY}"
+                        
+                        // Push the image to Docker Hub
+                        sh "docker push vaibhavchudari/netflix:latest"
+                    }
+                }
+            }
+        }
+        stage("TRIVY Image Scan") {
+            steps {
+                sh "trivy image vaibhavchudari/netflix:latest > trivyimage.txt"
+            }
+        }
+        stage('Deploy to Container using Docker Compose') {
+            steps {
+                sh 'docker-compose down'
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+}
+---
+and use this docker-compose.yml file
+
+version: '3.8'
+
+services:
+  netflix:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
+      args:
+        TMDB_V3_API_KEY: ${TMDB_V3_API_KEY}  # Reference the build argument
+    image: vaibhavchudari/netflix:latest
+    ports:
+      - "8081:80"
 
 **Phase 4: Monitoring**
 
