@@ -443,7 +443,8 @@ pipeline {
         }
     }
 }
----
+
+
 and use this docker-compose.yml file
 
 version: '3.8'
@@ -458,7 +459,8 @@ services:
     image: vaibhavchudari/netflix:latest
     ports:
       - "8081:80"
-----.
+
+```
 
 
 ****Phase 4: Monitoring:****
