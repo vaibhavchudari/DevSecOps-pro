@@ -125,10 +125,10 @@ docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix .
     ```bash
     sudo apt update
     sudo apt install fontconfig openjdk-17-jre
-    java -version
-    openjdk version "17.0.8" 2023-07-18
-    OpenJDK Runtime Environment (build 17.0.8+7-Debian-1deb12u1)
-    OpenJDK 64-Bit Server VM (build 17.0.8+7-Debian-1deb12u1, mixed mode, sharing)
+    #java -version
+    #openjdk version "17.0.8" 2023-07-18
+    #OpenJDK Runtime Environment (build 17.0.8+7-Debian-1deb12u1)
+    #OpenJDK 64-Bit Server VM (build 17.0.8+7-Debian-1deb12u1, mixed mode, sharing)
     
     #jenkins
     sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
@@ -204,7 +204,7 @@ pipeline {
         }
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/N4si/DevSecOps-Project.git'
+                git branch: 'main', url: 'https://github.com/vaibhavchudari/DevSecOps-pro.git'
             }
         }
         stage("Sonarqube Analysis") {
@@ -277,6 +277,7 @@ Now, you have installed the Dependency-Check plugin, configured the tool, and ad
 
 ```groovy
 
+
 pipeline{
     agent any
     tools{
@@ -294,7 +295,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/N4si/DevSecOps-Project.git'
+                git branch: 'main', url: 'https://github.com/vaibhavchudari/DevSecOps-pro.git'
             }
         }
         stage("Sonarqube Analysis "){
@@ -332,21 +333,21 @@ pipeline{
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build --build-arg TMDB_V3_API_KEY=<yourapikey> -t netflix ."
-                       sh "docker tag netflix nasi101/netflix:latest "
-                       sh "docker push nasi101/netflix:latest "
+                       sh "docker build --build-arg TMDB_V3_API_KEY=66506ed64934ccfccc8401df385e6130 -t netflix ."
+                       sh "docker tag netflix vaibhavchudari/netflix:latest "
+                       sh "docker push vaibhavchudari/netflix:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image nasi101/netflix:latest > trivyimage.txt" 
+                sh "trivy image vaibhavchudari/netflix:latest > trivyimage.txt" 
             }
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name netflix -p 8081:80 nasi101/netflix:latest'
+                sh 'docker run -d -p 8081:80 vaibhavchudari/netflix:latest'
             }
         }
     }
