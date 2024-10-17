@@ -458,6 +458,7 @@ services:
     image: vaibhavchudari/netflix:latest
     ports:
       - "8081:80"
+---
 
 **Phase 4: Monitoring**
 
